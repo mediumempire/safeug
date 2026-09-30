@@ -44,11 +44,13 @@ ln -s "$target" /opt/safeug/current.next
 mv -Tf /opt/safeug/current.next /opt/safeug/current
 systemctl daemon-reload
 systemctl enable safeug.service safeug-backup.timer
-systemctl restart safeug.service
+if ! systemctl restart safeug.service; then
+  echo 'Service restart failed; checking health before rollback.' >&2
+fi
 systemctl start safeug-backup.timer
 healthy=0
 for attempt in $(seq 1 20); do
-  if curl --silent --fail --max-time 2 http://127.0.0.1:8099/healthz | /opt/safeug/node/bin/node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{if(JSON.parse(s).ok!==true)process.exit(1)}catch{process.exit(1)}})'; then healthy=1; break; fi
+  if systemctl is-active --quiet safeug.service && curl --silent --fail --max-time 2 http://127.0.0.1:8099/healthz | /opt/safeug/node/bin/node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{if(JSON.parse(s).ok!==true)process.exit(1)}catch{process.exit(1)}})'; then healthy=1; break; fi
   sleep 1
 done
 if [[ $healthy -ne 1 ]]; then

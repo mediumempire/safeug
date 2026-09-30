@@ -14,7 +14,9 @@ version="${archive%-linux-*}"
 curl --fail --show-error --location --proto '=https' --tlsv1.2 "https://nodejs.org/dist/${version#node-}/$archive" -o "$archive"
 awk -v name="$archive" '$2==name' SHASUMS256.txt | sha256sum -c -
 install -d -m 0755 /opt/safeug/runtime
-tar -xJf "$archive" -C /opt/safeug/runtime --no-same-owner
+if [[ ! -x "/opt/safeug/runtime/${archive%.tar.xz}/bin/node" ]]; then
+  tar -xJf "$archive" -C /opt/safeug/runtime --no-same-owner
+fi
 [[ ! -e /opt/safeug/node || -L /opt/safeug/node ]] || { echo '/opt/safeug/node must be a symlink' >&2; exit 1; }
 ln -sfn "/opt/safeug/runtime/${archive%.tar.xz}" /opt/safeug/node
 /opt/safeug/node/bin/node --version
