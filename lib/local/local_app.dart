@@ -1091,7 +1091,7 @@ class _LocalShellState extends State<LocalShell> {
               ? Center(
                   child: _empty(
                     'No matching records',
-                    'Add a record to start building your local workspace.',
+                    'Add a record to your SafeUG workspace.',
                   ),
                 )
               : LayoutBuilder(
@@ -2044,7 +2044,7 @@ class _LocalShellState extends State<LocalShell> {
                         _message(
                           incident
                               ? 'Report saved for admin review.'
-                              : 'Record saved on laptop.',
+                              : 'Record synchronized with SafeUG.',
                         );
                       } catch (e) {
                         if (context.mounted) {

@@ -27,7 +27,7 @@ jobs:
       - run: flutter test
       - run: flutter test test/server_config_test.dart test/online_migration_test.dart --dart-define=SAFEUG_ALLOW_SERVER_OVERRIDE=false
       - run: node --test local/*.test.mjs
-      - run: bash -n deploy/install.sh deploy/install-node.sh deploy/backup.sh
+      - run: for script in deploy/*.sh; do bash -n "$script"; done
       - run: flutter build web --release --no-wasm-dry-run -t lib/mobile_main.dart
       - run: flutter build web --release --no-wasm-dry-run -t lib/admin_main.dart --base-href /admin/ --output build/admin
       - run: python3 tool/package_release.py
