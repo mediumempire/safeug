@@ -1,0 +1,14 @@
+[Unit]
+Description=SafeUG consistent SQLite backup
+
+[Service]
+Type=oneshot
+User=safeug
+Group=safeug
+EnvironmentFile=/etc/safeug/safeug.env
+ExecStart=/opt/safeug/current/deploy/backup.sh
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/safeug /var/backups/safeug

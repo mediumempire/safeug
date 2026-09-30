@@ -1,0 +1,24 @@
+[Unit]
+Description=SafeUG API and web applications
+After=network.target
+
+[Service]
+Type=simple
+User=safeug
+Group=safeug
+WorkingDirectory=/opt/safeug/current
+EnvironmentFile=/etc/safeug/safeug.env
+ExecStart=/opt/safeug/node/bin/node /opt/safeug/current/local/server.mjs
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=10
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/safeug /var/backups/safeug
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

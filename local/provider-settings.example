@@ -1,0 +1,7 @@
+# Store actual values only in local/.env.local (ignored by version control).
+# No external service is enabled by this example.
+# SAFEUG_DISPATCH_URL=https://approved-provider.example/dispatch
+# SAFEUG_DISPATCH_TOKEN=
+# SAFEUG_TRANSLATE_URL=http://127.0.0.1:5000/translate
+# SAFEUG_TRANSLATE_KEY=
+# SMS, radio, satellite and EarthRanger adapters await UWA protocol requirements.

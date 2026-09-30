@@ -1,0 +1,1079 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Base profile for any user of the SafeUG app, including tourists, local community members, guides, and park rangers. This entity is designed to be database-agnostic.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user, used for communication and notifications (not for authentication system data).",
+          "format": "email"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "Phone number of the user, used for communication and emergency contacts."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the user."
+        },
+        "dateJoined": {
+          "type": "string",
+          "description": "Timestamp when the user account was created.",
+          "format": "date-time"
+        },
+        "lastActive": {
+          "type": "string",
+          "description": "Timestamp of the user's last activity in the application.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "phoneNumber",
+        "firstName",
+        "lastName",
+        "dateJoined"
+      ]
+    },
+    "Tourist": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Tourist",
+      "type": "object",
+      "description": "Represents a foreign tourist using the SafeUG app for safety and travel guidance in Uganda.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Tourist entity."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to the associated UserProfile. (Relationship: UserProfile 1:1 Tourist)"
+        },
+        "homeCountry": {
+          "type": "string",
+          "description": "The home country of the tourist."
+        },
+        "dateOfArrival": {
+          "type": "string",
+          "description": "The planned or actual date and time of the tourist's arrival in Uganda.",
+          "format": "date-time"
+        },
+        "dateOfDeparture": {
+          "type": "string",
+          "description": "The planned or actual date and time of the tourist's departure from Uganda.",
+          "format": "date-time"
+        },
+        "currentLatitude": {
+          "type": "number",
+          "description": "The tourist's most recently reported latitude coordinate."
+        },
+        "currentLongitude": {
+          "type": "number",
+          "description": "The tourist's most recently reported longitude coordinate."
+        },
+        "locationSharingEnabled": {
+          "type": "boolean",
+          "description": "Indicates whether the tourist has enabled real-time location sharing with emergency contacts."
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "homeCountry",
+        "dateOfArrival",
+        "currentLatitude",
+        "currentLongitude",
+        "locationSharingEnabled"
+      ]
+    },
+    "Guide": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Guide",
+      "type": "object",
+      "description": "Represents a certified and trained local guide providing services to tourists.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Guide entity."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to the associated UserProfile. (Relationship: UserProfile 1:1 Guide)"
+        },
+        "certificationNumber": {
+          "type": "string",
+          "description": "The official certification number of the local guide."
+        },
+        "bio": {
+          "type": "string",
+          "description": "A short biography of the guide, highlighting their experience and personality."
+        },
+        "languagesSpoken": {
+          "type": "array",
+          "description": "A list of languages the guide is proficient in.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "specialties": {
+          "type": "array",
+          "description": "A list of specializations or areas of expertise (e.g., 'Wildlife Safari', 'Cultural Tour', 'Mountain Trekking').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dailyRate": {
+          "type": "number",
+          "description": "The guide's daily service rate (currency not specified, assuming a relevant local currency or USD)."
+        },
+        "isAvailable": {
+          "type": "boolean",
+          "description": "Indicates if the guide is currently available for bookings."
+        },
+        "averageRating": {
+          "type": "number",
+          "description": "The average rating received by the guide from tourists, aggregated from reviews."
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "certificationNumber",
+        "bio",
+        "languagesSpoken",
+        "specialties",
+        "dailyRate",
+        "isAvailable"
+      ]
+    },
+    "SafetyExpert": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SafetyExpert",
+      "type": "object",
+      "description": "Represents local safety experts such as security consultants, travel safety advisors, or emergency response team leads who can provide specialized support.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the SafetyExpert entity."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to the associated UserProfile if the expert is also an app user. (Relationship: UserProfile 1:1 SafetyExpert)"
+        },
+        "expertType": {
+          "type": "string",
+          "description": "The specific type of safety expertise (e.g., 'Security Consultant', 'Travel Safety Advisor', 'Emergency Response Lead')."
+        },
+        "organization": {
+          "type": "string",
+          "description": "The organization or company the safety expert is affiliated with."
+        },
+        "contactEmail": {
+          "type": "string",
+          "description": "The email address for contacting the safety expert.",
+          "format": "email"
+        },
+        "contactPhoneNumber": {
+          "type": "string",
+          "description": "The phone number for contacting the safety expert."
+        }
+      },
+      "required": [
+        "id",
+        "expertType",
+        "organization",
+        "contactPhoneNumber"
+      ]
+    },
+    "EmergencyContact": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "EmergencyContact",
+      "type": "object",
+      "description": "Represents a personal emergency contact designated by a tourist within the app.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the EmergencyContact entity."
+        },
+        "touristId": {
+          "type": "string",
+          "description": "Reference to the Tourist who added this emergency contact. (Relationship: Tourist 1:N EmergencyContact)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The full name of the emergency contact."
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The phone number of the emergency contact."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the emergency contact (optional).",
+          "format": "email"
+        },
+        "relationship": {
+          "type": "string",
+          "description": "The relationship of the contact to the tourist (e.g., 'Family', 'Friend', 'Colleague')."
+        }
+      },
+      "required": [
+        "id",
+        "touristId",
+        "name",
+        "phoneNumber"
+      ]
+    },
+    "EmergencyServiceLocation": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "EmergencyServiceLocation",
+      "type": "object",
+      "description": "Details and geographical location of local emergency services such as hospitals, police stations, and fire stations.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the EmergencyServiceLocation entity."
+        },
+        "serviceType": {
+          "type": "string",
+          "description": "The type of emergency service (e.g., 'Police Station', 'Hospital', 'Fire Station')."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the emergency service location (e.g., 'Kampala Central Police Station', 'Mulago National Referral Hospital')."
+        },
+        "address": {
+          "type": "string",
+          "description": "The physical address of the emergency service location."
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The main contact phone number for the emergency service."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "The latitude coordinate of the emergency service location."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "The longitude coordinate of the emergency service location."
+        },
+        "operatingHours": {
+          "type": "string",
+          "description": "Information about the operating hours of the service (e.g., '24/7', '9 AM - 5 PM Mon-Fri')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the services offered at this location."
+        }
+      },
+      "required": [
+        "id",
+        "serviceType",
+        "name",
+        "address",
+        "phoneNumber",
+        "latitude",
+        "longitude"
+      ]
+    },
+    "SafetyTip": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SafetyTip",
+      "type": "object",
+      "description": "Provides critical information about local laws, cultural sensitivities, common scams, and general safety advice for tourists.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the SafetyTip entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title or brief summary of the safety tip."
+        },
+        "category": {
+          "type": "string",
+          "description": "The category of the safety tip (e.g., 'Scams', 'Crowded Areas', 'Local Laws', 'Health', 'Wildlife')."
+        },
+        "content": {
+          "type": "string",
+          "description": "The detailed content of the safety tip."
+        },
+        "lastUpdated": {
+          "type": "string",
+          "description": "Timestamp when the safety tip was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "category",
+        "content",
+        "lastUpdated"
+      ]
+    },
+    "TravelAlert": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "TravelAlert",
+      "type": "object",
+      "description": "Provides real-time travel alerts regarding security concerns, safety issues, weather conditions, and potential hazards in specific areas.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the TravelAlert entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title or subject of the travel alert."
+        },
+        "message": {
+          "type": "string",
+          "description": "The detailed message or description of the alert."
+        },
+        "alertType": {
+          "type": "string",
+          "description": "The type of alert (e.g., 'Weather Warning', 'Security Advisory', 'Road Closure', 'Health Alert')."
+        },
+        "severity": {
+          "type": "string",
+          "description": "The severity level of the alert (e.g., 'Low', 'Medium', 'High', 'Critical')."
+        },
+        "issuedAt": {
+          "type": "string",
+          "description": "Timestamp when the alert was issued.",
+          "format": "date-time"
+        },
+        "validUntil": {
+          "type": "string",
+          "description": "Timestamp indicating when the alert is no longer considered valid.",
+          "format": "date-time"
+        },
+        "latitude": {
+          "type": "number",
+          "description": "The latitude coordinate for the center of the alert's affected area (optional, for localized alerts)."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "The longitude coordinate for the center of the alert's affected area (optional, for localized alerts)."
+        },
+        "radiusKm": {
+          "type": "number",
+          "description": "The radius in kilometers around the latitude/longitude defining the alert's affected area (optional)."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "message",
+        "alertType",
+        "severity",
+        "issuedAt",
+        "validUntil"
+      ]
+    },
+    "CommunityReport": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CommunityReport",
+      "type": "object",
+      "description": "Reports submitted by local communities about suspicious activities, animal sightings, safety concerns, or poaching activities.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the CommunityReport entity."
+        },
+        "reporterUserProfileId": {
+          "type": "string",
+          "description": "Reference to the UserProfile of the community member who submitted the report. (Relationship: UserProfile 1:N CommunityReport)"
+        },
+        "reportType": {
+          "type": "string",
+          "description": "The type of community report (e.g., 'Suspicious Activity', 'Animal Sighting', 'Safety Concern', 'Poaching Activity')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the reported incident or observation."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "The latitude coordinate where the incident or observation occurred."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "The longitude coordinate where the incident or observation occurred."
+        },
+        "reportedAt": {
+          "type": "string",
+          "description": "Timestamp when the report was submitted.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the report (e.g., 'Pending', 'Reviewed', 'In Progress', 'Resolved')."
+        },
+        "mediaUrls": {
+          "type": "array",
+          "description": "An array of URLs to images or videos supporting the report.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "reporterUserProfileId",
+        "reportType",
+        "description",
+        "latitude",
+        "longitude",
+        "reportedAt",
+        "status"
+      ]
+    },
+    "IncidentReport": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "IncidentReport",
+      "type": "object",
+      "description": "Records various safety incidents reported by tourists, including SOS activations, theft, assault, harassment, or being lost.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the IncidentReport entity."
+        },
+        "reporterTouristId": {
+          "type": "string",
+          "description": "Reference to the Tourist who initiated or reported the incident. (Relationship: Tourist 1:N IncidentReport)"
+        },
+        "incidentType": {
+          "type": "string",
+          "description": "The specific type of incident (e.g., 'SOS Activation', 'Theft', 'Assault', 'Harassment', 'Lost')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the incident."
+        },
+        "initialLatitude": {
+          "type": "number",
+          "description": "The latitude coordinate recorded at the time the incident was first reported or SOS activated."
+        },
+        "initialLongitude": {
+          "type": "number",
+          "description": "The longitude coordinate recorded at the time the incident was first reported or SOS activated."
+        },
+        "reportedAt": {
+          "type": "string",
+          "description": "Timestamp when the incident was first reported.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the incident (e.g., 'Reported', 'In Progress', 'Resolved', 'False Alarm')."
+        },
+        "emergencyContactIds": {
+          "type": "array",
+          "description": "References to personal EmergencyContact entities that were notified about this incident. (Relationship: IncidentReport N:N EmergencyContact)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "emergencyServiceLocationIds": {
+          "type": "array",
+          "description": "References to EmergencyServiceLocation entities (e.g., police, hospital) that were notified about this incident. (Relationship: IncidentReport N:N EmergencyServiceLocation)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "resolvedAt": {
+          "type": "string",
+          "description": "Timestamp when the incident was marked as resolved.",
+          "format": "date-time"
+        },
+        "resolutionDetails": {
+          "type": "string",
+          "description": "Details about how the incident was resolved."
+        }
+      },
+      "required": [
+        "id",
+        "reporterTouristId",
+        "incidentType",
+        "description",
+        "initialLatitude",
+        "initialLongitude",
+        "reportedAt",
+        "status"
+      ]
+    },
+    "RatingAndReview": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "RatingAndReview",
+      "type": "object",
+      "description": "Allows travelers to rate and review their experience with local guides, service providers (hotels, restaurants, transportation), and local safety services.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the RatingAndReview entity."
+        },
+        "reviewerTouristId": {
+          "type": "string",
+          "description": "Reference to the Tourist who submitted the review. (Relationship: Tourist 1:N RatingAndReview)"
+        },
+        "targetEntityType": {
+          "type": "string",
+          "description": "The type of entity being reviewed (e.g., 'Guide', 'ServiceProvider', 'EmergencyServiceLocation')."
+        },
+        "targetEntityId": {
+          "type": "string",
+          "description": "The ID of the specific entity (e.g., GuideId, ServiceProviderId) that is being reviewed."
+        },
+        "rating": {
+          "type": "number",
+          "description": "The numerical rating given by the tourist (e.g., on a scale of 1 to 5)."
+        },
+        "reviewText": {
+          "type": "string",
+          "description": "The detailed textual review provided by the tourist."
+        },
+        "reviewedAt": {
+          "type": "string",
+          "description": "Timestamp when the rating and review were submitted.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "reviewerTouristId",
+        "targetEntityType",
+        "targetEntityId",
+        "rating",
+        "reviewedAt"
+      ]
+    },
+    "ServiceProvider": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ServiceProvider",
+      "type": "object",
+      "description": "Represents local businesses such as hotels, restaurants, and transportation companies that provide services to tourists and can be rated.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ServiceProvider entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the service provider."
+        },
+        "serviceType": {
+          "type": "string",
+          "description": "The type of service provided (e.g., 'Hotel', 'Restaurant', 'Transportation Company', 'Tour Operator')."
+        },
+        "address": {
+          "type": "string",
+          "description": "The physical address of the service provider."
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The primary contact phone number for the service provider."
+        },
+        "websiteUrl": {
+          "type": "string",
+          "description": "The official website URL of the service provider (optional).",
+          "format": "uri"
+        },
+        "latitude": {
+          "type": "number",
+          "description": "The latitude coordinate of the service provider's location."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "The longitude coordinate of the service provider's location."
+        },
+        "averageRating": {
+          "type": "number",
+          "description": "The average rating received by the service provider, aggregated from reviews."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "serviceType",
+        "address",
+        "phoneNumber",
+        "latitude",
+        "longitude"
+      ]
+    },
+    "TrainingCourse": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "TrainingCourse",
+      "type": "object",
+      "description": "Represents safety training courses offered to travelers, including online modules on basic safety skills, first aid, and emergency response.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the TrainingCourse entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the training course."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the course content and learning objectives."
+        },
+        "durationHours": {
+          "type": "number",
+          "description": "The estimated duration of the course in hours."
+        },
+        "price": {
+          "type": "number",
+          "description": "The cost of enrolling in the training course."
+        },
+        "instructorUserProfileId": {
+          "type": "string",
+          "description": "Reference to the UserProfile of the instructor or safety professional delivering the course. (Relationship: UserProfile 1:N TrainingCourse)"
+        },
+        "courseUrl": {
+          "type": "string",
+          "description": "The URL where the online course content can be accessed.",
+          "format": "uri"
+        },
+        "isOnline": {
+          "type": "boolean",
+          "description": "Indicates if the course is available online (true) or requires in-person attendance (false)."
+        },
+        "lastUpdated": {
+          "type": "string",
+          "description": "Timestamp when the course information was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "description",
+        "durationHours",
+        "price",
+        "instructorUserProfileId",
+        "courseUrl",
+        "isOnline",
+        "lastUpdated"
+      ]
+    },
+    "Enrollment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Enrollment",
+      "type": "object",
+      "description": "Records a tourist's enrollment in a safety training course, tracking their progress and completion.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Enrollment entity."
+        },
+        "touristId": {
+          "type": "string",
+          "description": "Reference to the Tourist who is enrolled in the course. (Relationship: Tourist N:M TrainingCourse)"
+        },
+        "courseId": {
+          "type": "string",
+          "description": "Reference to the TrainingCourse in which the tourist is enrolled. (Relationship: TrainingCourse N:M Tourist)"
+        },
+        "enrollmentDate": {
+          "type": "string",
+          "description": "Timestamp when the tourist enrolled in the course.",
+          "format": "date-time"
+        },
+        "completionDate": {
+          "type": "string",
+          "description": "Timestamp when the tourist completed the course (optional).",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the enrollment (e.g., 'Enrolled', 'In Progress', 'Completed', 'Canceled')."
+        }
+      },
+      "required": [
+        "id",
+        "touristId",
+        "courseId",
+        "enrollmentDate",
+        "status"
+      ]
+    },
+    "LocationHistory": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LocationHistory",
+      "type": "object",
+      "description": "Stores periodic location updates for tourists, especially crucial during SOS activations or when location sharing is enabled.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the LocationHistory record."
+        },
+        "touristId": {
+          "type": "string",
+          "description": "Reference to the Tourist whose location is being recorded. (Relationship: Tourist 1:N LocationHistory)"
+        },
+        "incidentReportId": {
+          "type": "string",
+          "description": "Reference to an active IncidentReport (e.g., an SOS activation) if this location update is specifically tied to it. (Relationship: IncidentReport 1:N LocationHistory)"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp when the location coordinate was recorded.",
+          "format": "date-time"
+        },
+        "latitude": {
+          "type": "number",
+          "description": "The latitude coordinate of the recorded location."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "The longitude coordinate of the recorded location."
+        },
+        "accuracyMeters": {
+          "type": "number",
+          "description": "The estimated horizontal accuracy of the GPS fix in meters (optional)."
+        }
+      },
+      "required": [
+        "id",
+        "touristId",
+        "timestamp",
+        "latitude",
+        "longitude"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores the core UserProfile information for any authenticated user. Access is private, restricted to the owner matching 'userId'. Includes denormalized 'id' field matching the 'userId' from the path for Authorization Independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, corresponding to Firebase Authentication's UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/emergencyContacts/{contactId}",
+        "definition": {
+          "entityName": "EmergencyContact",
+          "schema": {
+            "$ref": "#/backend/entities/EmergencyContact"
+          },
+          "description": "Stores personal emergency contacts for a tourist. Access is private, restricted to the owning 'userId'. Includes denormalized 'touristId' field matching the 'userId' from the path for Authorization Independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the tourist, corresponding to Firebase Authentication's UID."
+            },
+            {
+              "name": "contactId",
+              "description": "The unique identifier for the specific emergency contact."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/incidentReports/{incidentId}",
+        "definition": {
+          "entityName": "IncidentReport",
+          "schema": {
+            "$ref": "#/backend/entities/IncidentReport"
+          },
+          "description": "Records various safety incidents initiated by a tourist (e.g., SOS activations). Owned by the 'userId', but also readable by authorized safety experts/authorities. Includes denormalized 'reporterTouristId' (matching 'userId' from path) and an 'authorizedReaders' map (e.g., {uid: true}) for Authorization Independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the tourist who reported the incident, corresponding to Firebase Authentication's UID."
+            },
+            {
+              "name": "incidentId",
+              "description": "The unique identifier for the specific incident report."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/incidentReports/{incidentId}/locationHistory/{historyId}",
+        "definition": {
+          "entityName": "LocationHistory",
+          "schema": {
+            "$ref": "#/backend/entities/LocationHistory"
+          },
+          "description": "Stores real-time location updates directly tied to an active incident report. Access is implicitly governed by the parent 'IncidentReport'. Includes denormalized 'touristId' (matching 'userId' from path) and 'incidentReportId' (matching 'incidentId' from path) for Authorization Independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the tourist whose location is being tracked, corresponding to Firebase Authentication's UID."
+            },
+            {
+              "name": "incidentId",
+              "description": "The unique identifier of the incident report this location history belongs to."
+            },
+            {
+              "name": "historyId",
+              "description": "The unique identifier for a specific location history record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/enrollments/{enrollmentId}",
+        "definition": {
+          "entityName": "Enrollment",
+          "schema": {
+            "$ref": "#/backend/entities/Enrollment"
+          },
+          "description": "Records a tourist's enrollment in a safety training course. Access is private, restricted to the owning 'userId'. Includes denormalized 'touristId' field matching the 'userId' from the path for Authorization Independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the tourist who is enrolled, corresponding to Firebase Authentication's UID."
+            },
+            {
+              "name": "enrollmentId",
+              "description": "The unique identifier for the specific course enrollment."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/tourists/{touristId}",
+        "definition": {
+          "entityName": "Tourist",
+          "schema": {
+            "$ref": "#/backend/entities/Tourist"
+          },
+          "description": "Stores public profiles for tourists, allowing discoverability and read access for all authenticated users. Writes are restricted to the owner ('touristId' matching 'request.auth.uid'). Includes denormalized 'id' and 'userProfileId' fields matching the 'touristId' from the path for Authorization Independence.",
+          "params": [
+            {
+              "name": "touristId",
+              "description": "The unique identifier for the Tourist profile, corresponding to Firebase Authentication's UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/guides/{guideId}",
+        "definition": {
+          "entityName": "Guide",
+          "schema": {
+            "$ref": "#/backend/entities/Guide"
+          },
+          "description": "Stores public profiles for certified guides, allowing discoverability and read access for all authenticated users. Writes are restricted to the owner ('guideId' matching 'request.auth.uid'). Includes denormalized 'id' and 'userProfileId' fields matching the 'guideId' from the path for Authorization Independence.",
+          "params": [
+            {
+              "name": "guideId",
+              "description": "The unique identifier for the Guide profile, corresponding to Firebase Authentication's UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/safetyExperts/{expertId}",
+        "definition": {
+          "entityName": "SafetyExpert",
+          "schema": {
+            "$ref": "#/backend/entities/SafetyExpert"
+          },
+          "description": "Stores public profiles for safety experts, allowing discoverability and read access for all authenticated users. Writes are restricted to the owner ('expertId' matching 'request.auth.uid') or administrators. Includes denormalized 'id' and 'userProfileId' fields matching the 'expertId' from the path for Authorization Independence.",
+          "params": [
+            {
+              "name": "expertId",
+              "description": "The unique identifier for the SafetyExpert profile, corresponding to Firebase Authentication's UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/emergencyServiceLocations/{serviceId}",
+        "definition": {
+          "entityName": "EmergencyServiceLocation",
+          "schema": {
+            "$ref": "#/backend/entities/EmergencyServiceLocation"
+          },
+          "description": "Provides public information about local emergency services. Readable by all. Writes restricted to administrative roles.",
+          "params": [
+            {
+              "name": "serviceId",
+              "description": "The unique identifier for the specific emergency service location."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/safetyTips/{tipId}",
+        "definition": {
+          "entityName": "SafetyTip",
+          "schema": {
+            "$ref": "#/backend/entities/SafetyTip"
+          },
+          "description": "Stores general safety advice and tips. Readable by all. Writes restricted to administrative roles.",
+          "params": [
+            {
+              "name": "tipId",
+              "description": "The unique identifier for the specific safety tip."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/travelAlerts/{alertId}",
+        "definition": {
+          "entityName": "TravelAlert",
+          "schema": {
+            "$ref": "#/backend/entities/TravelAlert"
+          },
+          "description": "Provides real-time travel alerts and advisories. Readable by all. Writes restricted to administrative roles.",
+          "params": [
+            {
+              "name": "alertId",
+              "description": "The unique identifier for the specific travel alert."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/communityReports/{reportId}",
+        "definition": {
+          "entityName": "CommunityReport",
+          "schema": {
+            "$ref": "#/backend/entities/CommunityReport"
+          },
+          "description": "Stores reports submitted by local community members. Writes are by the 'reporterUserProfileId' (matching 'request.auth.uid'). Readable by the reporter and explicit 'authorizedReaders' (e.g., safety experts, administrators). Includes denormalized 'reporterUserProfileId' and an 'authorizedReaders' map for Authorization Independence.",
+          "params": [
+            {
+              "name": "reportId",
+              "description": "The unique identifier for the specific community report."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/ratingsAndReviews/{reviewId}",
+        "definition": {
+          "entityName": "RatingAndReview",
+          "schema": {
+            "$ref": "#/backend/entities/RatingAndReview"
+          },
+          "description": "Allows tourists to rate and review services. Writes are by the 'reviewerTouristId' (matching 'request.auth.uid'). Readable by all. Includes denormalized 'reviewerTouristId' for Authorization Independence.",
+          "params": [
+            {
+              "name": "reviewId",
+              "description": "The unique identifier for the specific rating and review."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/serviceProviders/{providerId}",
+        "definition": {
+          "entityName": "ServiceProvider",
+          "schema": {
+            "$ref": "#/backend/entities/ServiceProvider"
+          },
+          "description": "Provides public information about local businesses and service providers. Readable by all. Writes restricted to administrative roles.",
+          "params": [
+            {
+              "name": "providerId",
+              "description": "The unique identifier for the specific service provider."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/trainingCourses/{courseId}",
+        "definition": {
+          "entityName": "TrainingCourse",
+          "schema": {
+            "$ref": "#/backend/entities/TrainingCourse"
+          },
+          "description": "Stores available safety training courses. Readable by all. Writes restricted to administrative roles. Includes denormalized 'instructorUserProfileId' for reference.",
+          "params": [
+            {
+              "name": "courseId",
+              "description": "The unique identifier for the specific training course."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{uid}",
+        "definition": {
+          "entityName": "RoleAdmin",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Dedicated collection for identifying users with administrative roles. Used for Database Access Control (DBAC). Document 'id' field matches 'uid'. Read/Write restricted to authenticated users matching 'uid' for self-registration, or other admins. Existence implies role, content is minimal.",
+          "params": [
+            {
+              "name": "uid",
+              "description": "The unique identifier of the user (Firebase Authentication UID) holding the admin role."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_safetyExpert/{uid}",
+        "definition": {
+          "entityName": "RoleSafetyExpert",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Dedicated collection for identifying users with safety expert roles. Used for Database Access Control (DBAC). Document 'id' field matches 'uid'. Read/Write restricted to authenticated users matching 'uid' for self-registration, or admins. Existence implies role, content is minimal.",
+          "params": [
+            {
+              "name": "uid",
+              "description": "The unique identifier of the user (Firebase Authentication UID) holding the safety expert role."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_guide/{uid}",
+        "definition": {
+          "entityName": "RoleGuide",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Dedicated collection for identifying users with guide roles. Used for Database Access Control (DBAC). Document 'id' field matches 'uid'. Read/Write restricted to authenticated users matching 'uid' for self-registration, or admins. Existence implies role, content is minimal.",
+          "params": [
+            {
+              "name": "uid",
+              "description": "The unique identifier of the user (Firebase Authentication UID) holding the guide role."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure for the SafeUG app prioritizes security, scalability, and debuggability by strictly adhering to the core design principles, especially Authorization Independence and Structural Segregation. The design leverages hierarchical paths for user-owned data and denormalization of authorization contexts to enable robust security rules without complex 'get()' operations.\n\n**Authorization Independence via Denormalization:**\n\n1.  **User-Owned Subcollections:** For entities like `EmergencyContact` and `Enrollment`, data is stored as subcollections under the owning user's path (e.g., `/users/{userId}/emergencyContacts/{contactId}`). The `userId` in the path serves as the explicit owner. The document itself includes a denormalized `touristId` or `userId` field matching the path wildcard. This allows security rules to simply check `request.auth.uid == userId` for ownership, eliminating the need to read parent documents to determine authorization.\n\n2.  **Shared Documents with Explicit Membership:** For `IncidentReport` and `CommunityReport` documents, which need to be accessed by the owner (reporter) and a defined set of authorized parties (e.g., safety experts, administrators), each document includes a denormalized `authorizedReaders` map (e.g., `authorizedReaders: { 'uid1': true, 'uid2': 'role' }`). This map is directly accessible within the security rules, allowing atomic authorization checks without 'get()' calls on other collections. The `reporterTouristId` or `reporterUserProfileId` field in these documents also ensures explicit ownership context.\n\n3.  **Nested Authorization for Location History:** `LocationHistory` entries are nested directly under an `IncidentReport` (e.g., `/users/{userId}/incidentReports/{incidentId}/locationHistory/{historyId}`). This design ensures that access to specific location updates is implicitly governed by the authorization of its parent `IncidentReport`. The `LocationHistory` documents also contain denormalized `touristId` and `incidentReportId` for explicit context, supporting Authorization Independence.\n\n**QAPs (Rules are not Filters):**\n\nThe structure facilitates Query-Able Permissions (QAPs) by ensuring that security rules do not act as filters on large, unindexed datasets. This is achieved through:\n\n1.  **Structural Segregation for Public Data:** Publicly accessible entities like `SafetyTip`, `TravelAlert`, `EmergencyServiceLocation`, `ServiceProvider`, `TrainingCourse`, `Tourist`, `Guide`, and `SafetyExpert` are placed in top-level collections. Their documents do not contain complex authorization fields for reads, allowing straightforward 'list' queries that are implicitly authorized for all authenticated users (or public). Writes to these collections are restricted to specific roles (e.g., administrators), as defined by dedicated role collections (DBAC).\n\n2.  **Owner-Scoped Collections:** Collections like `/users/{userId}/emergencyContacts` are inherently scoped to the authenticated user. 'List' queries on these collections are secure because the path itself includes the `userId`, allowing rules to easily verify `request.auth.uid == userId`. Firestore's security rules can efficiently apply this check without filtering data post-query.\n\n3.  **Membership-Filtered Collections:** For `IncidentReport` and `CommunityReport`, `list` queries can include `where` clauses on the `reporterTouristId` (for the owner) or on the `authorizedReaders` map. While filtering on a map requires specific indexes, the security rule directly checks the `request.auth.uid` against the document's `authorizedReaders` map, ensuring that only legitimately viewable documents are returned. This avoids 'filtering' and allows efficient querying against pre-defined access controls.\n\n**DBAC and Predictable Schema:**\n\nDedicated role collections like `/roles_admin/{uid}`, `/roles_safetyExpert/{uid}`, and `/roles_guide/{uid}` (where `uid` matches `request.auth.uid`) provide explicit, database-backed access control. This makes it easy for rules to check roles (e.g., `get(/databases/$(database)/documents/roles_admin/$(request.auth.uid)).exists()`). All documents use predictable schemas and standardized field names (e.g., `ownerId`, `reporterTouristId`) for clarity and debuggability."
+  }
+}

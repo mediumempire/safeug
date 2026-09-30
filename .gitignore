@@ -1,0 +1,79 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+.genkit/*
+.env*
+
+# firebase
+firebase-debug.log
+firestore-debug.log
+
+# Flutter/Android signing material
+android/keystore.properties
+android/keystore/
+
+# Local workstation records and runtime logs
+local/data/
+local/*.log
+.playwright-cli/
+.dart-local/
+
+# Flutter generated files, deployment bundles, private backups and workstation documents
+.dart_tool/
+.flutter-plugins*
+*.iml
+*.log
+*.sqlite*
+*.db
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
+*.key
+*.docx
+*.pdf
+*.csv
+.~lock.*
+/output/
+/android-capacitor-legacy/
+/.idx/
+/.vscode/
+/.agents/
+/.modified
+!/deploy/safeug.env.example

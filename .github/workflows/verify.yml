@@ -1,0 +1,41 @@
+name: Verify and package SafeUG
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: '3.44.0'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+      - run: flutter test test/server_config_test.dart test/online_migration_test.dart --dart-define=SAFEUG_ALLOW_SERVER_OVERRIDE=false
+      - run: node --test local/*.test.mjs
+      - run: bash -n deploy/install.sh deploy/install-node.sh deploy/backup.sh
+      - run: flutter build web --release --no-wasm-dry-run -t lib/mobile_main.dart
+      - run: flutter build web --release --no-wasm-dry-run -t lib/admin_main.dart --base-href /admin/ --output build/admin
+      - run: python3 tool/package_release.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: safeug-vps-release
+          path: |
+            output/releases/*/*.tar.gz
+            output/releases/*/*.sha256
+          if-no-files-found: error
+          retention-days: 14
