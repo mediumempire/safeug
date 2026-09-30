@@ -3,8 +3,8 @@ Description=SafeUG consistent SQLite backup
 
 [Service]
 Type=oneshot
-User=safeug
-Group=safeug
+User=safeug-app
+Group=safeug-app
 EnvironmentFile=/etc/safeug/safeug.env
 ExecStart=/opt/safeug/current/deploy/backup.sh
 UMask=0077

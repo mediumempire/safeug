@@ -14,10 +14,10 @@ release_id="$(/opt/safeug/node/bin/node -p 'JSON.parse(require("fs").readFileSyn
 [[ "$release_id" =~ ^[a-zA-Z0-9._+-]+$ ]] || { echo 'Invalid release id' >&2; exit 1; }
 target="/opt/safeug/releases/$release_id"
 [[ ! -e "$target" ]] || { echo "Release already installed: $target" >&2; exit 1; }
-getent passwd safeug >/dev/null || useradd --system --user-group --home-dir /var/lib/safeug --shell /usr/sbin/nologin safeug
+getent passwd safeug-app >/dev/null || useradd --system --user-group --home-dir /var/lib/safeug --shell /usr/sbin/nologin safeug-app
 install -d -m 0755 /opt/safeug /opt/safeug/releases
-install -d -o safeug -g safeug -m 0700 /var/lib/safeug /var/backups/safeug
-install -d -o root -g safeug -m 0750 /etc/safeug
+install -d -o safeug-app -g safeug-app -m 0700 /var/lib/safeug /var/backups/safeug
+install -d -o root -g safeug-app -m 0750 /etc/safeug
 if [[ ! -e /etc/safeug/safeug.env ]]; then
   initial_password="$(/opt/safeug/node/bin/node -e 'process.stdout.write(require("crypto").randomBytes(24).toString("base64url"))')"
   {
@@ -25,11 +25,11 @@ if [[ ! -e /etc/safeug/safeug.env ]]; then
     printf 'SAFEUG_ADMIN_PASSWORD=%s\n' "$initial_password"
   } > /etc/safeug/safeug.env
   unset initial_password
-  chown root:safeug /etc/safeug/safeug.env
+  chown root:safeug-app /etc/safeug/safeug.env
   chmod 0640 /etc/safeug/safeug.env
 fi
-previous="$(readlink -f /opt/safeug/current || true)"
-if [[ -f /var/lib/safeug/safeug.sqlite && -n "$previous" ]]; then
+previous="$(readlink -e /opt/safeug/current || true)"
+if [[ -f /var/lib/safeug/safeug.sqlite && -f "$previous/local/maintenance.mjs" ]]; then
   /opt/safeug/node/bin/node "$previous/local/maintenance.mjs" backup --database /var/lib/safeug/safeug.sqlite --output "/var/backups/safeug/pre-deploy-$(date -u +%Y%m%dT%H%M%SZ).sqlite"
 fi
 install -d -m 0755 "$target"

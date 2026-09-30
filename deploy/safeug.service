@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 Type=simple
-User=safeug
-Group=safeug
+User=safeug-app
+Group=safeug-app
 WorkingDirectory=/opt/safeug/current
 EnvironmentFile=/etc/safeug/safeug.env
 ExecStart=/opt/safeug/node/bin/node /opt/safeug/current/local/server.mjs

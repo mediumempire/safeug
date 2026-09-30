@@ -1,8 +1,8 @@
 # SafeUG on Apache / Virtualmin
 
-Target: Ubuntu 24.04 LTS, VPS `169.58.25.182`, Namecheap DNS. Both A records were observed pointing to this IP and HTTPS served the Virtualmin welcome page during preparation.
+Deployed on 30 September 2026: Ubuntu 24.04.5 LTS, VPS `169.58.25.182`, Namecheap DNS. HTTPS now serves SafeUG through the existing Virtualmin Apache virtual host.
 
-The prepared release uses one backend and one persistent database for all clients:
+The live release uses one backend and one persistent database for all clients:
 
 | Client | Address |
 | --- | --- |
@@ -17,9 +17,22 @@ private; phones never connect to it. SQLite lives in `/var/lib/safeug/`, outside
 versioned code releases. The release includes the compiled web applications, so
 the VPS does not need Flutter, npm packages, Firebase Hosting or Next.js.
 
-This guide prepares a single VPS deployment. It does not mean the domain is
-already deployed. Confirm your VPS IP, Linux version, SSH access and DNS provider
-before changing the server. Back up existing Virtualmin domain configuration.
+The initial deployment is complete. The existing database and administrator
+password were retained. Public HTTPS, redirects, app assets and Android download
+responded successfully. Server-side checks passed for admin login, guide ratings,
+SOS delivery, admin response updates and stand-down; temporary test data was removed.
+A service restart and an integrity-checked backup both passed. Daily backups are
+enabled. A visual browser check was not completed because browser access was declined.
+
+The backend runs as `safeug-app`, separately from the Virtualmin domain account
+`safeug` and upload account `sshadmin@safeug.online`. SSH uploads alone do not
+grant permission to manage Apache or system services; those steps require root
+or sudo. The original Apache configuration is retained privately at
+`/root/safeug-deploy/apache-before.conf`.
+
+Use the remaining sections for maintenance or a new installation. Back up the
+existing Virtualmin domain configuration before changing it. The iOS source uses
+the live API, but a signed iOS build still requires a Mac and Apple Developer membership.
 
 ## 1. DNS and Virtualmin domain
 
@@ -105,7 +118,7 @@ curl --fail http://127.0.0.1:8099/healthz
 ```
 
 Expected health response: `{"ok":true,"service":"safeug"}`. Installation creates
-the dedicated `safeug` account, a private environment file, a persistent database,
+the dedicated `safeug-app` account (separate from Virtualmin domain users), a private environment file, a persistent database,
 the systemd service and the daily backup timer. It preserves existing data and
 environment configuration on subsequent deployments.
 
@@ -189,7 +202,7 @@ sudo /opt/safeug/node/bin/node /opt/safeug/current/local/maintenance.mjs check \
 sudo mkdir /var/lib/safeug/before-migration
 sudo find /var/lib/safeug -maxdepth 1 -type f -name 'safeug.sqlite*' \
   -exec mv -t /var/lib/safeug/before-migration -- {} +
-sudo install -o safeug -g safeug -m 0600 "$HOME/safeug-migration.sqlite" /var/lib/safeug/safeug.sqlite
+sudo install -o safeug-app -g safeug-app -m 0600 "$HOME/safeug-migration.sqlite" /var/lib/safeug/safeug.sqlite
 sudo systemctl start safeug
 ```
 
@@ -213,7 +226,7 @@ Reset the password without placing it in shell history or command arguments:
 ```bash
 read -r -s -p 'New admin password (16+ characters): ' SAFEUG_NEW_PASSWORD
 printf '\n'
-printf '%s' "$SAFEUG_NEW_PASSWORD" | sudo -u safeug /opt/safeug/node/bin/node \
+printf '%s' "$SAFEUG_NEW_PASSWORD" | sudo -u safeug-app /opt/safeug/node/bin/node \
   /opt/safeug/current/local/maintenance.mjs reset-admin \
   --database /var/lib/safeug/safeug.sqlite --password-stdin
 unset SAFEUG_NEW_PASSWORD
@@ -235,7 +248,7 @@ disk usage because photo/video evidence is stored in SQLite.
 
 To restore: stop SafeUG, back up the current database, check the chosen backup,
 move the current `safeug.sqlite*` files to a private recovery directory as above,
-install the backup as `/var/lib/safeug/safeug.sqlite` owned by `safeug:safeug` with
+install the backup as `/var/lib/safeug/safeug.sqlite` owned by `safeug-app:safeug-app` with
 mode 0600, then start SafeUG. Test restore on a spare instance before an emergency.
 
 ## 8. Android and iOS distribution

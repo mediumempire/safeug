@@ -1,6 +1,6 @@
 import http from 'node:http';
 import { DatabaseSync } from 'node:sqlite';
-import { mkdirSync, existsSync, statSync, createReadStream } from 'node:fs';
+import { mkdirSync, existsSync, statSync, createReadStream, realpathSync } from 'node:fs';
 import { resolve, dirname, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID, randomBytes } from 'node:crypto';
@@ -364,7 +364,7 @@ export function createSafeUgServer(databasePath = process.env.SAFEUG_DATABASE_PA
   return server;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && existsSync(process.argv[1]) && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const port = Number(process.env.SAFEUG_PORT || 8099);
   const host = process.env.SAFEUG_HOST || '127.0.0.1';
   if (process.env.NODE_ENV==='production' && host!=='127.0.0.1') throw new Error('Production listens on loopback behind Apache only');
