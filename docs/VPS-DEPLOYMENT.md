@@ -6,7 +6,8 @@ The live release uses one backend and one persistent database for all clients:
 
 | Client | Address |
 | --- | --- |
-| Mobile web | `https://www.safeug.online/` |
+| Public landing page | `https://www.safeug.online/` |
+| Mobile web | `https://www.safeug.online/mobile/` |
 | Admin portal | `https://www.safeug.online/admin/` |
 | Android / iOS API | `https://www.safeug.online/api/` |
 | Health check | `https://www.safeug.online/healthz` |

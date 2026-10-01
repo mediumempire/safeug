@@ -115,6 +115,18 @@ void main() {
       store.notifyListeners();
       await flushAlerts();
       expect(platform.events, hasLength(1));
+      store.data['incidents']!.add({
+        'id': 'ranger',
+        'type': 'Ranger down',
+        'status': 'Reported',
+      });
+      store.notifyListeners();
+      await flushAlerts();
+      expect(platform.events.last['title'], 'Ranger-down emergency');
+      store.data['incidents']!.last['latitude'] = 0.3;
+      store.notifyListeners();
+      await flushAlerts();
+      expect(platform.events, hasLength(2));
       alerts.dispose();
       store.dispose();
     },

@@ -41,6 +41,9 @@ String normalizeIncidentType(Object? value) {
 bool isSosIncident(Map<String, dynamic> incident) =>
     normalizeIncidentType(incident['type']) == 'SOS';
 
+bool isEmergencyIncident(Map<String, dynamic> incident) =>
+    ['SOS', 'Ranger down'].contains(normalizeIncidentType(incident['type']));
+
 bool isOpenIncident(Map<String, dynamic> incident) =>
     !['Resolved', 'False Alarm'].contains(incident['status']);
 

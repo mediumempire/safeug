@@ -31,6 +31,8 @@ for source in (root/'local').glob('*.mjs'):
 for app in ['web', 'admin']:
     shutil.copytree(root/f'build/{app}', stage/f'build/{app}')
 shutil.copytree(root/'deploy', stage/'deploy')
+shutil.copytree(root/'local/catalog', stage/'local/catalog')
+shutil.copytree(root/'landing', stage/'landing')
 (stage/'docs').mkdir()
 shutil.copy2(root/'docs/VPS-DEPLOYMENT.md', stage/'docs/VPS-DEPLOYMENT.md')
 if args.apk:

@@ -387,8 +387,11 @@ class LocalStore extends ChangeNotifier {
     Record fields,
   ) async {
     final incident = incidentById(id);
-    if (incident == null || !isSosIncident(incident)) {
-      throw StateError('SOS alert not found.');
+    if (incident == null ||
+        !(action == 'location'
+            ? isEmergencyIncident(incident)
+            : isSosIncident(incident))) {
+      throw StateError('Emergency alert not found.');
     }
     if (!isOpenIncident(incident)) return;
     await _changeActions(() {
@@ -537,6 +540,21 @@ class LocalStore extends ChangeNotifier {
     }
     notifyListeners();
     return result;
+  }
+
+  Future<Record> reviewGuide(String id, String status, String note) async {
+    final response = await _client
+        .post(
+          Uri.parse('$endpoint/api/guideApplications/$id/review'),
+          headers: headers,
+          body: jsonEncode({'status': status, 'note': note}),
+        )
+        .timeout(const Duration(seconds: 12));
+    if (response.statusCode != 200) {
+      throw StateError('${jsonDecode(response.body)['error']}');
+    }
+    await sync();
+    return Record.from(jsonDecode(response.body) as Map);
   }
 
   Future<void> sync() async {

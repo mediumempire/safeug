@@ -26,7 +26,7 @@ ThemeData buildSafeUgTheme({required Brightness brightness}) {
     scaffoldBackgroundColor: isDark
         ? const Color(0xFF0B1722)
         : AppColors.background,
-    fontFamily: 'Inter',
+    fontFamily: 'Manrope',
     appBarTheme: AppBarTheme(
       backgroundColor: isDark ? const Color(0xFF0B1722) : AppColors.background,
       foregroundColor: isDark ? Colors.white : AppColors.ink,

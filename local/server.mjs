@@ -8,9 +8,11 @@ import { createSecurity } from './security.mjs';
 import { integrationStatus } from './integrations.mjs';
 import { createRealtime } from './realtime.mjs';
 import { runtimeConfig, requestContext } from './runtime-config.mjs';
+import {seedCatalog} from './catalog.mjs';
+import {guideApplications} from './guide-applications.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const collections = ['incidents', 'rangers', 'tourists', 'parks', 'wildlife', 'devices', 'contacts', 'guides', 'tips', 'services', 'locations', 'welfare'];
+const collections = ['incidents', 'rangers', 'tourists', 'parks', 'wildlife', 'devices', 'contacts', 'guides', 'tips', 'services', 'locations', 'welfare', 'guideApplications'];
 const statuses = ['Reported', 'Acknowledged', 'Dispatched', 'En Route', 'Resolved', 'False Alarm'];
 const incidentTypes = ['Suspicious Activity', 'Animal Sighting', 'Safety Hazard', 'Human-Wildlife Conflict', 'Illegal Encroachment', 'Other', 'SOS', 'Poaching', 'Medical', 'Lost tourist', 'Fire', 'Ranger down', 'Backup needed', 'Wildlife'];
 const severities = ['Low', 'Medium', 'High', 'Critical'];
@@ -38,6 +40,7 @@ export function createSafeUgServer(databasePath = process.env.SAFEUG_DATABASE_PA
     return {...record,rating:summary.rating,ratingCount:summary.ratingCount,...(actor.role==='admin'?{}:{myRating:mine?.score ?? null})};
   };
   const realtime = createRealtime(security,{timeoutMs:options.realtimeTimeoutMs});
+  if(options.seedCatalog===true || (config.production && options.seedCatalog!==false)) seedCatalog(db);
   if(options.seedContacts!==false) {
     const defaults=[
       {id:'ug-police',name:'National Police',phone:'999',description:'Uganda Police emergency line. Alternate: 112. Source: upf.go.ug/faq/'},
@@ -47,7 +50,7 @@ export function createSafeUgServer(databasePath = process.env.SAFEUG_DATABASE_PA
     for(const record of defaults) if(!get.get('services',record.id)) put.run('services',record.id,JSON.stringify({...record,status:'Active',area:'Uganda',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}));
   }
   const published = ['guides','tips','services','parks'];
-  const owned = ['incidents','contacts','locations','welfare'];
+  const owned = ['incidents','contacts','locations','welfare','guideApplications'];
   db.exec('CREATE TABLE IF NOT EXISTS evidence (id TEXT PRIMARY KEY, owner TEXT, incident TEXT, mime TEXT, data BLOB);');
   const server = http.createServer(async (req, res) => {
     Object.assign(req,requestContext(req,config));
@@ -87,6 +90,10 @@ export function createSafeUgServer(databasePath = process.env.SAFEUG_DATABASE_PA
         const actor = security.actor(req);
         if (!actor) return reply(401,{error:'Authentication required'});
         const admin = actor.role === 'admin';
+        if(url.pathname==='/api/guideApplications' || url.pathname.startsWith('/api/guideApplications/')) {
+          if(req.method!=='POST')return reply(405,{error:'Use the application workflow'});
+          return guideApplications({path:url.pathname,method:req.method,input:JSON.parse(await readBody(12000)),actor,db,realtime,reply});
+        }
         if (url.pathname === '/api/changes' && req.method === 'GET') {
           return realtime.wait(req,res,actor,url.searchParams.get('since'),reply);
         }
@@ -187,7 +194,7 @@ export function createSafeUgServer(databasePath = process.env.SAFEUG_DATABASE_PA
           if (!existing) return reply(404,{error:'Incident not found'});
           const incident=JSON.parse(existing.data);
           if (!admin && incident.ownerId !== actor.id) return reply(403,{error:'Record belongs to another device'});
-          if (normalizeIncidentType(incident.type) !== 'SOS') return reply(400,{error:'This action is only available for SOS alerts'});
+          if (normalizeIncidentType(incident.type) !== 'SOS' && !(action === 'location' && normalizeIncidentType(incident.type) === 'Ranger down')) return reply(400,{error:'This action is not available for this incident'});
           const input=JSON.parse(await readBody(4000));
           if (!input || Array.isArray(input) || typeof input !== 'object') return reply(400,{error:'Expected an SOS update'});
           // A repeated retry or a late GPS response must never reopen a closed alert.
@@ -234,6 +241,7 @@ export function createSafeUgServer(databasePath = process.env.SAFEUG_DATABASE_PA
         if(collection==='incidents') allowed.push('severity','occurredAt','resolutionDetails');
         if(collection==='incidents' && admin) allowed.push('responseAgency','responseNote');
         if(collection==='tourists') allowed.push('email','country','emergencyContactName','emergencyContactPhone');
+        if(collection==='tips') allowed.push('category','tags','sourceUrl');
         if(collection==='contacts') allowed.push('relationship');
         for (const key of allowed) {
           if (!(key in input)) continue;
@@ -279,7 +287,7 @@ export function createSafeUgServer(databasePath = process.env.SAFEUG_DATABASE_PA
           }
           data.locationSource ??= data.latitude != null?'device':data.area?.trim()?'landmark':'unavailable';
           if (data.locationSource === 'device' && data.latitude == null) return reply(400,{error:'Device location is missing'});
-          if (!existing && data.type !== 'SOS') {
+          if (!existing && !['SOS','Ranger down'].includes(data.type)) {
             if (!data.description?.trim()) return reply(400,{error:'Describe what happened'});
             if (data.latitude == null && !data.area?.trim()) return reply(400,{error:'Attach your device location or enter an area or landmark'});
           }
@@ -341,15 +349,18 @@ export function createSafeUgServer(databasePath = process.env.SAFEUG_DATABASE_PA
         realtime.changed(collection,data);
         return reply(req.method === 'POST' ? 201 : 200, collection==='guides'?guideView(data,actor):data);
       }
-      const isAdminPath=url.pathname==='/admin' || url.pathname.startsWith('/admin/');
       if (!['GET','HEAD'].includes(req.method)) return reply(405,{error:'Method not allowed'});
-      const webRoot = resolve(root, isAdminPath ? 'build/admin' : 'build/web');
-      const requested = isAdminPath ? url.pathname.replace(/^\/admin/, '') || '/' : url.pathname;
+      if(['/mobile','/admin'].includes(url.pathname)) {res.writeHead(308,{Location:url.pathname+'/'+url.search});return res.end();}
+      const isAdminPath=url.pathname.startsWith('/admin/');
+      const isMobilePath=url.pathname.startsWith('/mobile/');
+      const shared=url.pathname.startsWith('/downloads/') || ['/safeug-notifications.js','/flutter_service_worker.js'].includes(url.pathname);
+      const webRoot = resolve(root, isAdminPath ? 'build/admin' : isMobilePath || shared ? 'build/web' : 'landing');
+      const requested = isAdminPath ? url.pathname.slice(6) : isMobilePath ? url.pathname.slice(7) : url.pathname;
       let path = resolve(webRoot, '.' + decodeURIComponent(requested));
       if (!path.startsWith(webRoot + sep) && path !== webRoot) return reply(403, {error:'Invalid path'});
-      if (path === webRoot || !extname(path)) path = resolve(webRoot, 'index.html');
+      if (path === webRoot || ((isAdminPath || isMobilePath) && !extname(path))) path = resolve(webRoot, 'index.html');
       if (!existsSync(path) || !statSync(path).isFile()) return reply(404, {error:'Build the web app with flutter build web --release'});
-      const types = {'.html':'text/html; charset=utf-8','.js':'text/javascript','.json':'application/json','.wasm':'application/wasm','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.woff2':'font/woff2','.ttf':'font/ttf','.apk':'application/vnd.android.package-archive'};
+      const types = {'.html':'text/html; charset=utf-8','.css':'text/css','.webp':'image/webp','.js':'text/javascript','.json':'application/json','.wasm':'application/wasm','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.woff2':'font/woff2','.ttf':'font/ttf','.apk':'application/vnd.android.package-archive'};
       res.writeHead(200, {'Content-Type': types[extname(path)] || 'application/octet-stream', 'Content-Length':statSync(path).size, 'Cache-Control':'no-cache'});
       if(req.method==='HEAD') return res.end();
       const stream=createReadStream(path);

@@ -3,7 +3,7 @@ set -euo pipefail
 umask 027
 [[ $EUID -eq 0 ]] || { echo 'Run with sudo.' >&2; exit 1; }
 source_dir="$(realpath "${1:?Usage: sudo bash deploy/install.sh /path/to/safeug-release}")"
-for file in release.json local/server.mjs build/web/index.html build/admin/index.html; do
+for file in release.json local/server.mjs local/catalog/protected-areas.json landing/index.html build/web/index.html build/admin/index.html; do
   [[ -f "$source_dir/$file" ]] || { echo "Missing release file: $file" >&2; exit 1; }
 done
 [[ -x /opt/safeug/node/bin/node ]] || { echo 'Run deploy/install-node.sh first.' >&2; exit 1; }

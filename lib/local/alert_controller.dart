@@ -85,7 +85,9 @@ class AlertController extends ChangeNotifier {
         ? store.records('incidents')
         : store.ownIncidents;
     for (final incident in incidents) {
-      if (!isSosIncident(incident)) continue;
+      if (!isEmergencyIncident(incident)) continue;
+      final rangerDown =
+          normalizeIncidentType(incident['type']) == 'Ranger down';
       final id = '${incident['id']}';
       final queued = store.isQueued(id);
       final signature =
@@ -103,15 +105,23 @@ class AlertController extends ChangeNotifier {
                   previous.startsWith('False Alarm:'))) {
             _show(
               id,
-              'New SOS emergency',
-              'An SOS has reached SafeUG. Open the dashboard to review and respond.',
+              rangerDown ? 'Ranger-down emergency' : 'New SOS emergency',
+              'An emergency has reached SafeUG. Open the dashboard to review and respond.',
             );
           }
         } else {
           _show(
             id,
-            open ? 'SOS update' : 'SOS ended',
-            mobileIncidentStatus(incident, queued: queued),
+            rangerDown
+                ? 'Ranger-down update'
+                : open
+                ? 'SOS update'
+                : 'SOS ended',
+            rangerDown
+                ? queued
+                      ? 'Saved on this device. Waiting to reach administration.'
+                      : 'Admin status: ${incident['status']}'
+                : mobileIncidentStatus(incident, queued: queued),
           );
         }
       }

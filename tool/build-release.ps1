@@ -14,7 +14,7 @@ function Invoke-Flutter {
     if ($LASTEXITCODE -ne 0) { throw "Flutter command failed: $args" }
 }
 Invoke-Flutter pub get
-Invoke-Flutter build web --release --no-pub --no-wasm-dry-run -t lib/mobile_main.dart
+Invoke-Flutter build web --release --no-pub --no-wasm-dry-run -t lib/mobile_main.dart --base-href /mobile/
 Invoke-Flutter build web --release --no-pub --no-wasm-dry-run -t lib/admin_main.dart --base-href /admin/ --output build/admin
 if ($IncludeAndroid) {
     Invoke-Flutter build apk --release --no-pub -t lib/mobile_main.dart --dart-define=SAFEUG_API_URL=https://www.safeug.online --dart-define=SAFEUG_ALLOW_SERVER_OVERRIDE=false

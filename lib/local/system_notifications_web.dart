@@ -39,9 +39,9 @@ class SystemNotifications {
             web.NotificationOptions(
               body: body,
               tag: 'safeug-$id',
-              icon: '/icons/Icon-192.png',
+              icon: '/mobile/icons/Icon-192.png',
               requireInteraction: admin,
-              data: {'url': admin ? '/admin/' : '/'}.jsify(),
+              data: {'url': admin ? '/admin/' : '/mobile/'}.jsify(),
             ),
           )
           .toDart;

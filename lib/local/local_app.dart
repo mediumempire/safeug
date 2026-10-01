@@ -16,6 +16,7 @@ import 'theme_controller.dart';
 import 'emergency_center.dart';
 import 'sos_button.dart';
 import 'alert_controller.dart';
+import 'discovery_pages.dart';
 
 const forest = Color(0xFF003A2D);
 const statuses = incidentStatuses;
@@ -157,6 +158,7 @@ class _LocalShellState extends State<LocalShell> {
     'Emergency services',
     'Location sharing',
     'Ranger welfare',
+    'Guide applications',
   ];
   static const icons = [
     Icons.dashboard_outlined,
@@ -174,6 +176,7 @@ class _LocalShellState extends State<LocalShell> {
     Icons.emergency_outlined,
     Icons.share_location,
     Icons.monitor_heart_outlined,
+    Icons.how_to_reg_outlined,
   ];
   static const collections = {
     2: 'incidents',
@@ -550,6 +553,7 @@ class _LocalShellState extends State<LocalShell> {
   );
 
   Widget _adminBody() {
+    if (_page == 15) return GuideApplicationReview(store: store);
     if (_page == 0) return _overview();
     if (_page == 1) return _map();
     if (_page == 8) return _reports();
@@ -562,7 +566,7 @@ class _LocalShellState extends State<LocalShell> {
     final pending =
         store
             .records('incidents')
-            .where((r) => isSosIncident(r) && r['status'] == 'Reported')
+            .where((r) => isEmergencyIncident(r) && r['status'] == 'Reported')
             .toList()
           ..sort(
             (a, b) => '${b['reportedAt']}'.compareTo('${a['reportedAt']}'),
@@ -577,7 +581,7 @@ class _LocalShellState extends State<LocalShell> {
           color: Theme.of(context).colorScheme.onErrorContainer,
         ),
         title: Text(
-          'SOS emergency • ${pending.length} awaiting response',
+          'Emergency alerts • ${pending.length} awaiting response',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
@@ -585,7 +589,9 @@ class _LocalShellState extends State<LocalShell> {
         ),
         trailing: FilledButton(
           onPressed: () => _details(first),
-          child: const Text('Review SOS'),
+          child: Text(
+            isSosIncident(first) ? 'Review SOS' : 'Review ranger alert',
+          ),
         ),
       ),
     );
@@ -863,18 +869,14 @@ class _LocalShellState extends State<LocalShell> {
             _companionTool(
               'Find a guide',
               Icons.hiking,
-              () => _openPage(
-                'Tour guides',
-                () => PublishedDirectory(store: store, collection: 'guides'),
-              ),
+              () =>
+                  _openPage('Tour guides', () => GuideDirectory(store: store)),
             ),
             _companionTool(
               'Safety tips',
               Icons.health_and_safety_outlined,
-              () => _openPage(
-                'Safety tips',
-                () => PublishedDirectory(store: store, collection: 'tips'),
-              ),
+              () =>
+                  _openPage('Safety tips', () => SafetyExplorer(store: store)),
             ),
             _companionTool(
               'Translator',
@@ -908,13 +910,19 @@ class _LocalShellState extends State<LocalShell> {
               Icons.park_outlined,
               () => _openPage(
                 'Protected areas',
-                () => PublishedDirectory(store: store, collection: 'parks'),
+                () => ProtectedAreaExplorer(store: store),
               ),
             ),
             _companionTool(
               'Ranger check-in',
               Icons.monitor_heart_outlined,
-              () => _edit('welfare'),
+              () => _openPage(
+                'Ranger check-in',
+                () => RangerCheckIn(
+                  store: store,
+                  onCheckIn: () => _edit('welfare'),
+                ),
+              ),
             ),
           ],
         ),
@@ -1774,6 +1782,7 @@ class _LocalShellState extends State<LocalShell> {
         'phone',
         'health',
         'battery',
+        if (collection == 'tips') ...['category', 'tags', 'sourceUrl'],
         if (collection == 'tourists') ...[
           'email',
           'country',
@@ -1847,6 +1856,19 @@ class _LocalShellState extends State<LocalShell> {
                     ),
                   ),
                   if (!incident) ...[
+                    if (collection == 'tips')
+                      for (final entry in {
+                        'category': 'Category',
+                        'tags': 'Context keywords (space separated)',
+                        'sourceUrl': 'Source URL (optional)',
+                      }.entries)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: TextField(
+                            controller: fields[entry.key],
+                            decoration: InputDecoration(labelText: entry.value),
+                          ),
+                        ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
                       initialValue: status,
